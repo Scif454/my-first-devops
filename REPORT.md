@@ -145,3 +145,73 @@ sudo iptables -t nat -L -v -n
 Вывод команды
 
 ![Вывод команды](iptables2.png)
+
+
+## Задание 3: Работа с LVM
+
+## 1. Теория LVM
+
+LVM (Logical Volume Manager) — технология управления дисковым пространством, которая добавляет уровень абстракции 
+между физическими дисками и файловыми системами.
+
+PV(Physical Volume) - Физический диск или раздел
+
+VG(Volume Group) - Группа томов, пул пространства из одного или нескольких PV
+
+LV(Logical Volume) - Логический том, "виртуальный раздел" для форматирования
+
+## 2. Работа с LVM
+
+## Не получилось работать с путем /dev/sda, поэтому делал отдельные диски 
+
+- Виртуальная машина: **VirtualBox**
+
+- ОС: Ubuntu 22.04 (Desktop)
+
+- Дополнительные диски:
+
+- `/dev/sdb` — 10 ГБ (создан вручную)
+
+- `/dev/sdc` — 10 ГБ (добавлен позже для расширения)
+
+
+## 2.1 Создание LVM
+
+`sudo pvcreate /dev/sdb`  Создаёт Physical Volume на диске `/dev/sdb`
+ 
+`sudo vgcreate my_vg /dev/sdb` | Создаёт Volume Group `my_vg`, включающую `/dev/sdb` 
+
+`sudo lvcreate -L 8G -n my_lv my_vg`  Создаёт Logical Volume `my_lv` размером 8 ГБ в `my_vg` 
+
+`sudo mkfs.ext4 /dev/my_vg/my_lv`  Форматирует LV в файловую систему ext4 
+
+`sudo mkdir -p /mnt/lvm_test`  Создаёт точку монтирования 
+
+`sudo mount /dev/my_vg/my_lv /mnt/lvm_test`  Монтирует LV в `/mnt/lvm_test`
+
+## 2.2 Расширение LVM
+
+`sudo pvcreate /dev/sdc`  Создаёт PV на новом диске `/dev/sdc` 
+
+`sudo vgextend my_vg /dev/sdc` Добавляет новый PV в существующую VG `my_vg` 
+
+`sudo lvextend -r -l +100%FREE /dev/my_vg/my_lv`  Расширяет LV на всё свободное место в VG и
+автоматически расширяет ФС (флаг `-r`)
+
+## 3. Проверка
+
+## Команды для проверки
+
+sudo pvs
+
+sudo vgs
+
+sudo lvs
+
+df -h /mnt/lvm_test
+
+lsblk
+
+ Итог 
+
+![Вывод команды](lvm.png)
