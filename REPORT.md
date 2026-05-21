@@ -7,17 +7,25 @@
 [Unit]
 
 Description=Alive service - logs I am alive every 10 seconds ----(Описание сервиса в systemctl status)
+
 After=network.target ----(Запускается после поднятия сети)
 
 [Service]
 
 User=nobody ----(Запуск от непривилегированного пользователя)
+
 Group=nogroup ----(Группа с минимальными правами)
+
 ExecStart=/usr/bin/python3 /home/test-nst/my-first-devops/alive.py ----(Полный путь к интерпретатору Python и скрипту)
+
 Restart=on-failure ----(Автоматически перезапускать сервис при ошибке)
+
 MemoryMax=50M ----(Сервис не может использовать более 50 МБ ОЗУ)
+
 CPUQuota=20% ----(Сервис не может загружать процессор более чем на 20%)
+
 StandardOutput=journal ----(Весь вывод скрипта отправляется в systemd journal)
+
 StandardError=journal ----(Ошибки также отправляются в journal)
 
 [Install]
@@ -68,15 +76,18 @@ Systemd-сервис успешно создан и работает с зада
 #!/bin/bash
 
 echo "Сброс существующих правил..."
+
 sudo iptables -F ---(Очищаем все правила)
+
 sudo iptables -X ---(Удаление пользовательских цепочек)
+
 sudo iptables -t nat -F ---(Очищаем правила nat)
 
-
 sudo iptables -P INPUT DROP ---(Запретить все входящие соединения)
-sudo iptables -P FORWARD DROP ---(Запретить все перенаправленные пакеты)
-sudo iptables -P OUTPUT ACCEPT ---(Запретить все исходящие соединения)
 
+sudo iptables -P FORWARD DROP ---(Запретить все перенаправленные пакеты)
+
+sudo iptables -P OUTPUT ACCEPT ---(Запретить все исходящие соединения)
 
 sudo iptables -A INPUT -m state --state ESTABLISHED,
 RELATED -j ACCEPT ---(Разрешить ответы на наши исходящие соединения)
@@ -94,12 +105,8 @@ sudo iptables -t nat -A PREROUTING -p tcp --dport 8080 -j REDIRECT
 sudo mkdir -p /etc/iptables ---(Сохраняем правила в файл для восстановления
 после перезагрузки)
  
-
-
 sudo iptables-save | sudo tee /etc/iptables/rules.v4 > 
 /dev/null ---(Сохраняем правило)
-
-
 
 echo "Правила успешно применены и сохранены в /etc/iptables/rules.v4"
 
